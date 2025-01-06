@@ -10,3 +10,5 @@ wheels/
 .venv
 
 *.pdf
+*.ipynb
+.env

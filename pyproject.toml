@@ -12,4 +12,5 @@ dependencies = [
     "langgraph>=0.2.60",
     "pypdf>=5.1.0",
     "ipykernel>=6.29.5",
+    "python-dotenv>=1.0.1",
 ]
