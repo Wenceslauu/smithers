@@ -13,4 +13,5 @@ dependencies = [
     "pypdf>=5.1.0",
     "ipykernel>=6.29.5",
     "python-dotenv>=1.0.1",
+    "click>=8.1.8",
 ]
