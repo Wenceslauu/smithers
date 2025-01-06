@@ -145,8 +145,8 @@ def setup_checkpointer(workflow):
     
 @click.command()
 @click.argument("filename", type=click.Path(exists=True))
-@click.option("-r", "--role", help="Role the user is applying for in the interview")
-@click.option("-max", "--max_questions", help="Maximum number of questions to ask", type=int, default=1)
+@click.option("-r", "--role", help="Role the user is applying for in the interview", required=True)
+@click.option("-max", "--max_questions", help="Maximum number of questions to ask", default=1)
 def interview(filename, role, max_questions):
     """This script will run an interview with a candidate based on the provided resume FILENAME"""
     # click.argument() does not take a help parameter. This is to follow the general convention of Unix tools of using arguments for only the most necessary things,
