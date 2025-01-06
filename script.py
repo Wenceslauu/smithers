@@ -146,7 +146,8 @@ def setup_checkpointer(workflow):
 @click.command()
 @click.option("--role", help="Role the user is applying for in the interview")
 @click.option("--resume", help="Path to the resume of the user")
-def interview(role, resume):
+@click.option("--max_questions", help="Maximum number of questions to ask", default=1)
+def interview(role, resume, max_questions):
     print(f"Applying for role: {role}")
     print(f"Resume: {resume}")
     
@@ -158,7 +159,7 @@ def interview(role, resume):
     
     workflow = setup_state()
     
-    setup_graph_nodes(llm, role, workflow, template_next_question, template_followup_question, template_judgement, 1, 1)
+    setup_graph_nodes(llm, role, workflow, template_next_question, template_followup_question, template_judgement, max_questions, 1)
     
     app = setup_checkpointer(workflow)
     
