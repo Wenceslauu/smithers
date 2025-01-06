@@ -173,13 +173,25 @@ def interview(role, resume):
         "total_questions": 0,
         "total_followups": 0,
         "history": "",
-        "question_history": ""
+        "question_history": "",
+        "result": ""
         },
         config=thread_config
     )
     
-    print(interview["question"])
-    
+    while not interview["result"]:
+        print(interview["question"])
+        
+        answer = input("Answer: ")
+        
+        interview = app.invoke(
+            Command(
+                resume=answer),
+                config=thread_config
+        )
+        
+    print(interview["result"])
+        
 
 if __name__ == "__main__":
     main()
