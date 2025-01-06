@@ -144,16 +144,17 @@ def setup_checkpointer(workflow):
     return app
     
 @click.command()
-@click.option("--role", help="Role the user is applying for in the interview")
-@click.option("--resume", help="Path to the resume of the user")
-@click.option("--max_questions", help="Maximum number of questions to ask", default=1)
-def interview(role, resume, max_questions):
-    print(f"Applying for role: {role}")
-    print(f"Resume: {resume}")
+@click.argument("filename")
+@click.option("-r", "--role", help="Role the user is applying for in the interview")
+@click.option("-max", "--max_questions", help="Maximum number of questions to ask", type=int, default=1)
+def interview(filename: click.Path, role, max_questions):
+    """This script will run an interview with a candidate based on the provided resume FILENAME"""
+    # click.argument() does not take a help parameter. This is to follow the general convention of Unix tools of using arguments for only the most necessary things,
+    # and to document them in the command help text by referring to them by name.
     
     llm = ChatOllama(model="llama3")
     
-    docs_content = setup_doc_loader(resume)
+    docs_content = setup_doc_loader(filename)
     
     template_next_question, template_followup_question, template_judgement = setup_prompt_templates()
     
