@@ -152,7 +152,6 @@ def introduce_interview(role):
     
     click.clear()
 
-
 @click.command()
 @click.argument("filename", type=click.Path(exists=True))
 @click.option("-r", "--role", help="Role the user is applying for in the interview", required=True)
@@ -173,9 +172,7 @@ def interview(filename, role, max_questions):
     setup_graph_nodes(llm, role, workflow, template_next_question, template_followup_question, template_judgement, max_questions, 1)
     
     app = setup_checkpointer(workflow)
-    
-    introduce_interview(role)
-        
+
     thread_config = {
         "configurable": {
             "thread_id": uuid.uuid4()
@@ -193,12 +190,20 @@ def interview(filename, role, max_questions):
         config=thread_config
     )
     
+    introduce_interview(role)
+        
     while not interview["result"]:
         click.secho("Question: " + interview["question"], fg="blue")
         
         click.echo()
         
-        answer = input("Answer: ")
+        answer = ""
+        
+        while not answer:
+            answer = input("Answer: ")
+            
+            if not answer:
+                click.secho("Please provide an answer.", fg="red")
         
         interview = app.invoke(
             Command(resume=answer),
