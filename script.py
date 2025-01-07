@@ -143,6 +143,16 @@ def setup_checkpointer(workflow):
     
     return app
     
+def introduce_interview(role):
+    click.secho(f"Welcome to your interview for a {role} position!", fg="green")
+    
+    click.echo()
+    
+    click.pause("When you're ready, press any key to start the interview...")
+    
+    click.clear()
+
+
 @click.command()
 @click.argument("filename", type=click.Path(exists=True))
 @click.option("-r", "--role", help="Role the user is applying for in the interview", required=True)
@@ -164,6 +174,8 @@ def interview(filename, role, max_questions):
     
     app = setup_checkpointer(workflow)
     
+    introduce_interview(role)
+        
     thread_config = {
         "configurable": {
             "thread_id": uuid.uuid4()
@@ -182,17 +194,20 @@ def interview(filename, role, max_questions):
     )
     
     while not interview["result"]:
-        print(interview["question"])
+        click.secho("Question: " + interview["question"], fg="blue")
+        
+        click.echo()
         
         answer = input("Answer: ")
         
         interview = app.invoke(
-            Command(
-                resume=answer),
-                config=thread_config
+            Command(resume=answer),
+            config=thread_config
         )
         
-    print(interview["result"])
+        click.echo()
+        
+    click.secho(interview["result"])
         
 
 if __name__ == "__main__":
