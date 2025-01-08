@@ -10,6 +10,8 @@ from langgraph.types import interrupt, Command
 from langgraph.checkpoint.memory import MemorySaver
 import uuid
 
+from pydantic import BaseModel, Field
+
 def main():
     load_dotenv()
     
@@ -37,7 +39,7 @@ def setup_prompt_templates():
     template_judgement = PromptTemplate.from_template("""
         You are an interviewer for the following role: {role}.
         This is the interview so far: {history}.
-        Based on the candidate's answers, would you recommend them for the role? Why or why not?
+        Based on the candidate's answers, extract the properties mentioned in the 'Judgement' class.
     """)
     
     return template_next_question, template_followup_question, template_judgement
@@ -51,6 +53,8 @@ def setup_state():
         total_followups: Optional[int] = None
         total_questions: Optional[int] = None
         result: Optional[str] = None
+        has_passed: Optional[bool] = None
+        score: Optional[int] = None
     
     workflow = StateGraph(State)
     
@@ -110,9 +114,20 @@ def setup_graph_nodes(llm, role, workflow, template_next_question, template_foll
     def judge_candidate(state):
         prompt = template_judgement.invoke({"role": role, "history": state["history"]})
         
-        question = llm.invoke(prompt)
+        class Judgement(BaseModel):
+            has_passed: str = Field(description="Whether the candidate is recommended for the role. The possible values are 'yes' or 'no'.")
+            recommendation: str = Field(description="""
+                Provide a recommendation based on the candidate's answers.
+                Talk about competences such as technical knowledge, problem-solving skills, communication skills, initiative, adaptability, and teamwork.
+                You don't need to mention all of them, mention the ones that are suitable for the questions asked.
+            """) # https://www.reddit.com/r/LocalLLaMA/comments/1hcj0ur/structured_outputs_can_hurt_the_performance_of/
+            score: int = Field(description="The score of the candidate. 0 out of 100.")
         
-        return {"result": question.content}
+        question = llm.with_structured_output(Judgement).invoke(prompt)
+        
+        has_passed_bool = True if question.has_passed == "yes" else False
+        
+        return {"result": question.recommendation, "has_passed": has_passed_bool, "score": int(question.score)}
     
     def check_for_followup_or_judgement(state):
         if state["total_questions"] ==  max_questions and state["total_followups"] == max_followups:
@@ -161,7 +176,7 @@ def interview(filename, role, max_questions):
     # click.argument() does not take a help parameter. This is to follow the general convention of Unix tools of using arguments for only the most necessary things,
     # and to document them in the command help text by referring to them by name.
     
-    llm = ChatOllama(model="llama3")
+    llm = ChatOllama(model="llama3.1")
     
     docs_content = setup_doc_loader(filename)
     
@@ -185,7 +200,7 @@ def interview(filename, role, max_questions):
         "total_followups": 0,
         "history": "",
         "question_history": "",
-        "result": ""
+        "result": "",
         },
         config=thread_config
     )
@@ -212,8 +227,20 @@ def interview(filename, role, max_questions):
         
         click.echo()
         
-    click.secho(interview["result"])
+    click.secho(interview["result"], fg="green" if interview["has_passed"] else "red")
         
+    def score_color(score, has_passed):
+        if score >= 95:
+            return "blue"
+        elif score >= 90:
+            return "yellow"
+        elif has_passed:
+            return "green"
+        else:
+            return "red"
+    
+    click.secho(f"SCORE: {interview["score"]}/100", fg=score_color(interview["score"], interview["has_passed"]))
+       
 
 if __name__ == "__main__":
     main()
