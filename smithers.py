@@ -8,6 +8,7 @@ from typing import List, Optional, TypedDict
 from langgraph.graph import START, StateGraph
 from langgraph.types import interrupt, Command
 from langgraph.checkpoint.memory import MemorySaver
+from httpx import ConnectError
 import uuid
 
 from pydantic import BaseModel, Field
@@ -194,16 +195,21 @@ def interview(filename, role, max_questions):
         }
     }
 
-    interview = app.invoke({
-        "context": docs_content,
-        "total_questions": 0,
-        "total_followups": 0,
-        "history": "",
-        "question_history": "",
-        "result": "",
-        },
-        config=thread_config
-    )
+    try: 
+        interview = app.invoke({
+            "context": docs_content,
+            "total_questions": 0,
+            "total_followups": 0,
+            "history": "",
+            "question_history": "",
+            "result": "",
+            },
+            config=thread_config
+        )
+    except ConnectError:
+        click.secho("Failed to load the language model. Make Ollama is running llama3.1 before trying out this script.", fg="red")
+        
+        return
     
     introduce_interview(role)
         
