@@ -160,6 +160,16 @@ def setup_checkpointer(workflow):
     return app
     
 def introduce_interview(role):
+    # https://patorjk.com/software/taag/#p=display&f=Slant&t=Smithers
+    click.secho(r"""           
+   _____           _ __  __                  
+  / ___/____ ___  (_) /_/ /_  ___  __________
+  \__ \/ __ `__ \/ / __/ __ \/ _ \/ ___/ ___/
+ ___/ / / / / / / / /_/ / / /  __/ /  (__  ) 
+/____/_/ /_/ /_/_/\__/_/ /_/\___/_/  /____/                            
+
+""", fg="yellow")
+    
     click.secho(f"Welcome to your interview for a {role} position!", fg="green")
     
     click.echo()
@@ -207,14 +217,21 @@ def interview(filename, role, max_questions):
             config=thread_config
         )
     except ConnectError:
-        click.secho("Failed to load the language model. Make Ollama is running llama3.1 before trying out this script.", fg="red")
+        click.secho("Failed to load the language model. Make sure Ollama is running llama3.1 before trying out this script.", fg="red")
         
         return
     
     introduce_interview(role)
         
     while not interview["result"]:
-        click.secho("Question: " + interview["question"], fg="blue")
+        question_index = interview["total_questions"] * 1 + interview["total_followups"]
+        max_index = max_questions * 1 + max_questions
+        
+        click.secho("[", nl=False, fg="blue")
+        click.secho(question_index, nl=False, fg="yellow")
+        click.secho(f"/{max_index}]: ", nl=False, fg="blue")
+        click.secho("Question: ", nl=False, fg="yellow")
+        click.secho(interview["question"], fg="blue")
         
         click.echo()
         
