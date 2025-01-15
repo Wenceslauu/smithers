@@ -188,9 +188,17 @@ def introduce_interview(role):
 @click.option("-r", "--role", help="Role the user is applying for in the interview", required=True)
 @click.option("-max", "--max_questions", help="Maximum number of questions to ask", default=1)
 def interview(filename, role, max_questions):
-    """This script will run an interview with a candidate based on the provided resume FILENAME"""
+    """
+    This script will run an interview with a candidate based on the provided resume FILENAME.\n
+    Only PDF and DOCX files are supported.
+    """
     # click.argument() does not take a help parameter. This is to follow the general convention of Unix tools of using arguments for only the most necessary things,
     # and to document them in the command help text by referring to them by name.
+    
+    if not (filename.endswith(".pdf") or filename.endswith(".docx")):
+        click.secho("The resume file must be a PDF or DOCX file.", fg="red")
+        
+        return
     
     llm = ChatOllama(model="llama3.1")
     
