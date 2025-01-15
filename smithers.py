@@ -10,6 +10,7 @@ from langgraph.types import interrupt, Command
 from langgraph.checkpoint.memory import MemorySaver
 from httpx import ConnectError
 import uuid
+from halo import Halo
 
 from pydantic import BaseModel, Field
 
@@ -218,7 +219,11 @@ def interview(filename, role, max_questions):
         }
     }
 
-    try: 
+    try:         
+        spinner = Halo(text="Loading the language model...", spinner="dots")
+        
+        spinner.start()
+        
         interview = app.invoke({
             "context": docs_content,
             "total_questions": 0,
@@ -229,6 +234,9 @@ def interview(filename, role, max_questions):
             },
             config=thread_config
         )
+        
+        spinner.stop()
+        
     except ConnectError:
         click.secho("Failed to load the language model. Make sure Ollama is running llama3.1 before trying out this script.", fg="red")
         
@@ -240,9 +248,7 @@ def interview(filename, role, max_questions):
         question_index = interview["total_questions"] * 1 + interview["total_followups"]
         max_index = max_questions * 1 + max_questions
         
-        click.secho("[", nl=False, fg="blue")
-        click.secho(question_index, nl=False, fg="yellow")
-        click.secho(f"/{max_index}]: ", nl=False, fg="blue")
+        click.secho(f"[{question_index}/{max_index}]: ", nl=False, fg="yellow")
         click.secho("Question: ", nl=False, fg="yellow")
         click.secho(interview["question"], fg="blue")
         
@@ -251,18 +257,25 @@ def interview(filename, role, max_questions):
         answer = ""
         
         while not answer:
-            answer = input("Answer: ")
+            click.secho("Answer: ", nl=False, fg="yellow")
+            answer = input()
             
             if not answer:
                 click.secho("Please provide an answer.", fg="red")
+        
+        click.echo()
+        
+        spinner = Halo(text="Smithers is thinking about another question to ask...", spinner="dots")
+        
+        spinner.start()
         
         interview = app.invoke(
             Command(resume=answer),
             config=thread_config
         )
         
-        click.echo()
-        
+        spinner.stop()
+                
     click.secho(interview["result"], fg="green" if interview["has_passed"] else "red")
         
     def score_color(score, has_passed):
