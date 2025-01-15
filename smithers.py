@@ -64,7 +64,12 @@ def setup_state():
 def setup_doc_loader(file_path):
     loader = PyPDFLoader(file_path)
 
-    docs_content = loader.load()[0].page_content
+    loaded_docs = loader.load()
+
+    docs_content = ""
+
+    for doc in loaded_docs:
+        docs_content += doc.page_content
     
     return docs_content
 
