@@ -22,8 +22,8 @@ With pipx (automatically adds smithers to PATH):
 pipx install smithers-llm
 ```
  
-[!CAUTION]
-Please notice that the user is expected to run the model separately as well.
+> [!WARNING]
+> Please notice that the user is expected to run the model separately as well.
 
 So far the only model supported is Llama3.1
 
