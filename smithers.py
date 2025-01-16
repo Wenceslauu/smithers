@@ -265,7 +265,14 @@ def interview(filename, role, max_questions):
         
         click.echo()
         
-        spinner = Halo(text="Smithers is thinking about another question to ask...", spinner="dots")
+        spinner_message = ""
+        
+        if question_index != max_index:
+            spinner_message = "Smithers is thinking about another question to ask..."
+        else:
+            spinner_message = "Smithers is evaluating your answers..."
+            
+        spinner = Halo(text=spinner_message, spinner="dots")
         
         spinner.start()
         
