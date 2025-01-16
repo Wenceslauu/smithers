@@ -1,6 +1,6 @@
 [project]
 name = "smithers-llm"
-version = "1.0.8"
+version = "1.0.9"
 description = "An LLM-powered CLI that simulates job interviews based on your resume."
 readme = "docs/PyPI-README.md"
 requires-python = ">=3.13"
