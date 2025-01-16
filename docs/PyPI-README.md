@@ -67,7 +67,7 @@ pipx run smithers-llm [RESUME_PATH] --role=[ROLE]
 - Experimenting with Jupyter Notebooks
   - Research whether it was worth commiting the notebooks, although they might be reasonable for documentation purposes, they weren't for the way I used them in this project, to scratch the general ideas up right in the beginning
 - Self-reflection if RAG was necessary here, the answer I came to was NO. The files are too small.
-- Creating a GitHub Pages workflow to publish project to PyPI on pushing tagged commits to GitHub.
+- Creating a GitHub Pages workflow to publish project to PyPI on pushing tagged commits to GH.
 
 ## Fun fact
 
